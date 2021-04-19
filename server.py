@@ -53,7 +53,7 @@ def handle_client(conn, addr):
 
 def listener():
 	server.listen()
-	print("[SERVER] is listening on " + SERVER)
+	print("[SERVER] is listening on " + SERVER + ":" + str(PORT))
 	while True:
 		conn, addr = server.accept()
 		thread = threading.Thread(target = handle_client, args = (conn, addr))

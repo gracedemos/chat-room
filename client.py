@@ -2,7 +2,7 @@ import socket
 import threading
 
 PORT = 5050
-SERVER = "192.168.1.99"
+SERVER = "192.168.86.232"
 ADDR = (SERVER, PORT)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
