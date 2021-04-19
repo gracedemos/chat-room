@@ -18,7 +18,10 @@ def get_name(nid):
 
 def send_all(msg):
 	for i in client_list["clients"]:
-		i["conn"].send(msg)
+		try:
+			i["conn"].send(msg)
+		except:
+			pass
 
 def handle_client(conn, addr):
 	client_id = os.urandom(4).hex()
