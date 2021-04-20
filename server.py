@@ -1,6 +1,7 @@
 import socket
 import threading
 import os
+import json
 
 PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
@@ -10,6 +11,10 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
 client_list = {"clients": []}
+
+f = open("data.json", 'r')
+file_data = json.load(f)
+f.close()
 
 def get_name(nid):
 	for i in client_list["clients"]:
@@ -23,7 +28,12 @@ def send_all(msg):
 		except:
 			pass
 
-def handle_client(conn, addr):
+def update_record(file_data):
+	f = open("data.json", 'w')
+	json.dump(file_data, f, indent = 4)
+	f.close()
+
+def handle_client(conn, addr, file_data):
 	client_id = os.urandom(4).hex()
 	client_list["clients"].append({"id": client_id, "name": client_id, "ip": addr[0], "conn": conn})
 	connected = True
@@ -43,28 +53,34 @@ def handle_client(conn, addr):
 					if client_list["clients"][i]["id"] == client_id:
 						client_list["clients"][i]["name"] = msg
 				send_all(("[" + msg + " Connected]").encode())
+				file_data["data"].append("[" + msg + " Connected]")
+				update_record(file_data)
 			elif msg == "!exit":
 				connected = False
 				send_all(("[" + get_name(client_id) + " Disconnected]").encode())
+				file_data["data"].append("[" + get_name(client_id) + " Disconnected]")
+				update_record(file_data)
 				for i in range(len(client_list["clients"])):
 					if client_list["clients"][i]["id"] == client_id:
 						del client_list["clients"][i]
 						break
 			else:
 				send_all(("[" + get_name(client_id) + "] " + msg).encode())
+				file_data["data"].append({get_name(client_id): msg})
+				update_record(file_data)
 	conn.close()
 
-def listener():
+def listener(file_data):
 	server.listen()
 	print("[SERVER] is listening on " + SERVER + ":" + str(PORT))
 	while True:
 		conn, addr = server.accept()
-		thread = threading.Thread(target = handle_client, args = (conn, addr))
+		thread = threading.Thread(target = handle_client, args = (conn, addr, file_data))
 		thread.start()
 		print("[SERVER] Active Connections: " + str(threading.activeCount() - 2))
 
-def start():
-	listener_thread = threading.Thread(target = listener)
+def start(file_data):
+	listener_thread = threading.Thread(target = listener, args = file_data)
 	listener_thread.start()
 	active = True
 	while active:
@@ -75,4 +91,4 @@ def start():
 				i["conn"].close()
 			server.close()
 
-start()
+start(file_data)
