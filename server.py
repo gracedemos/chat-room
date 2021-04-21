@@ -28,12 +28,12 @@ def send_all(msg):
 		except:
 			pass
 
-def update_record(file_data):
+def update_record():
 	f = open("data.json", 'w')
 	json.dump(file_data, f, indent = 4)
 	f.close()
 
-def handle_client(conn, addr, file_data):
+def handle_client(conn, addr):
 	client_id = os.urandom(4).hex()
 	client_list["clients"].append({"id": client_id, "name": client_id, "ip": addr[0], "conn": conn})
 	connected = True
@@ -54,12 +54,12 @@ def handle_client(conn, addr, file_data):
 						client_list["clients"][i]["name"] = msg
 				send_all(("[" + msg + " Connected]").encode())
 				file_data["data"].append("[" + msg + " Connected]")
-				update_record(file_data)
+				update_record()
 			elif msg == "!exit":
 				connected = False
 				send_all(("[" + get_name(client_id) + " Disconnected]").encode())
 				file_data["data"].append("[" + get_name(client_id) + " Disconnected]")
-				update_record(file_data)
+				update_record()
 				for i in range(len(client_list["clients"])):
 					if client_list["clients"][i]["id"] == client_id:
 						del client_list["clients"][i]
@@ -67,20 +67,20 @@ def handle_client(conn, addr, file_data):
 			else:
 				send_all(("[" + get_name(client_id) + "] " + msg).encode())
 				file_data["data"].append({get_name(client_id): msg})
-				update_record(file_data)
+				update_record()
 	conn.close()
 
-def listener(file_data):
+def listener():
 	server.listen()
 	print("[SERVER] is listening on " + SERVER + ":" + str(PORT))
 	while True:
 		conn, addr = server.accept()
-		thread = threading.Thread(target = handle_client, args = (conn, addr, file_data))
+		thread = threading.Thread(target = handle_client, args = (conn, addr))
 		thread.start()
 		print("[SERVER] Active Connections: " + str(threading.activeCount() - 2))
 
-def start(file_data):
-	listener_thread = threading.Thread(target = listener, args = file_data)
+def start():
+	listener_thread = threading.Thread(target = listener)
 	listener_thread.start()
 	active = True
 	while active:
@@ -91,4 +91,4 @@ def start(file_data):
 				i["conn"].close()
 			server.close()
 
-start(file_data)
+start()
