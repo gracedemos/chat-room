@@ -1,19 +1,18 @@
 import React from "react";
-import Cookies from "universal-cookie";
+import UserState from "./user-state";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            cookies: new Cookies(),
             username: ""
         };
     }
 
     submit() {
-        this.state.cookies.set("user", this.state.username);
-        window.location.assign(window.location.origin + "/app");
+        UserState.setUser(this.state.username);
+        window.location.hash = "/app";
     }
 
     render() {

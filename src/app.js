@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import React from "react";
 import axios from "axios";
-import Cookies from "universal-cookie";
+import UserState from "./user-state";
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./index.css"
 
@@ -23,7 +23,7 @@ class Messages extends React.Component {
     }
 
     update() {
-        axios.get("http://localhost:8080").then(response => {
+        axios.get("http://127.0.0.1:8080").then(response => {
             this.setState({
                 totalMessages: response.data.totalMessages,
                 messages: response.data.messages
@@ -45,7 +45,7 @@ class Messages extends React.Component {
         }
 
         return(
-            <div class="d-flex flex-column" id="messages-container">
+            <div className="d-flex flex-column" id="messages-container">
                 {messages}
             </div>
         );
@@ -62,7 +62,7 @@ class InputBar extends React.Component {
 
     sendMessage() {
         if(this.state.message !== "") {
-            axios.post("http://localhost:8080", [this.props.user, this.state.message]);
+            axios.post("http://127.0.0.1:8080", [UserState.getUser(), this.state.message]);
             this.setState({
                 message: ""
             });
@@ -91,18 +91,11 @@ class InputBar extends React.Component {
 }
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            cookies: new Cookies()
-        }
-    }
-
     render() {
         return(
-            <div class="d-flex flex-column" id="app-container">
+            <div className="d-flex flex-column" id="app-container">
                 <Messages/>
-                <InputBar user={this.state.cookies.get("user")}/>
+                <InputBar/>
             </div>
         );
     }
