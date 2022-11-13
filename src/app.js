@@ -36,8 +36,12 @@ class App extends React.Component {
     }
 
     render() {
+        const messages = []
+        for(let i = 0; i < this.state.totalMessages; i++) {
+            messages.push(<Message user={this.state.messages[i][0]} message={this.state.messages[i][1]}/>);
+        }
         return(
-            <Message user={this.state.messages[0][0]} message={this.state.messages[0][1]}/>
+            messages
         );
     }
 };
